@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Command Executor</title>
+    <style>
+        #output {
+			height: 600px;
+            width: 100%;
+            overflow: auto;
+            border: 1px solid #000;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+    </style>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script>
+    window.onload = function() {
+        var ip = location.hostname;
+        var port = location.port;
+        var socket = io.connect('http://' + ip + ':' + port + '/test');
+        socket.on('log message', function(msg) {
+            var output = document.getElementById('output');
+            output.innerHTML += msg.message + '\n';
+
+            // Auto scroll
+            output.scrollTop = output.scrollHeight;
+        });
+        document.getElementById('commandForm').onsubmit = function(e) {
+            e.preventDefault();
+            var command = document.getElementById('command').value;
+            output.innerHTML += `user@hack: ${command}` + '\n';
+            socket.emit('execute command', {command: command});
+        };
+    };
+    </script>
+</head>
+<body>
+    <h1>Command Executor</h1>
+    <form id="commandForm" method="post">
+        <label for="command">Введите команду:</label>
+        <input type="text" id="command" name="command" required>
+        <button type="submit">Выполнить</button>
+    </form>
+    <h2>Результат выполнения команды:</h2>
+    <pre id="output"></pre>
+</body>
+</html>
